@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Just Checking In 💙</title>
+    <title>Just Checking In </title>
     <style>
         * {
             margin: 0;
@@ -244,21 +244,16 @@
         let currentQuestion = 'start';
         let responses = [];
 
-        function recordResponse(path, answer, questionText) {
+        function recordResponse(path, answer) {
             responses.push({
-                question: questionText,
+                path: path,
                 answer: answer
             });
         }
 
         function sendToDiscord(endMessage) {
             const timestamp = new Date().toLocaleString();
-            
-            // Format journey with full questions and answers
-            let journeyText = '';
-            responses.forEach((r, index) => {
-                journeyText += `**Q${index + 1}:** ${r.question}\n**A:** ${r.answer}\n\n`;
-            });
+            const journey = responses.map(r => `${r.path}: ${r.answer}`).join(' → ');
 
             const message = {
                 content: '✅ New Response Received!',
@@ -273,8 +268,8 @@
                                 inline: false
                             },
                             {
-                                name: '📋 Q&A Journey',
-                                value: journeyText || 'No responses recorded',
+                                name: '🗺️ Journey',
+                                value: journey,
                                 inline: false
                             }
                         ],
@@ -309,7 +304,7 @@
             `;
 
             if (question.isEnd) {
-                recordResponse(questionKey, 'End', question.text);
+                recordResponse(questionKey, 'end');
                 // Send to Discord
                 sendToDiscord(question.text);
                 html += `
@@ -318,8 +313,8 @@
             } else {
                 html += `
                     <div class="buttons">
-                        <button class="yes-btn" onclick="answer('${question.yes}', 'Yes ✓', '${question.text}')">Yes ✓</button>
-                        <button class="no-btn" onclick="answer('${question.no}', 'No ✗', '${question.text}')">No ✗</button>
+                        <button class="yes-btn" onclick="answer('${question.yes}', 'Yes')">Yes ✓</button>
+                        <button class="no-btn" onclick="answer('${question.no}', 'No ✗')">No ✗</button>
                     </div>
                 `;
             }
@@ -327,8 +322,8 @@
             app.innerHTML = html;
         }
 
-        function answer(nextQuestion, answerText, questionText) {
-            recordResponse(currentQuestion, answerText, questionText);
+        function answer(nextQuestion, answerText) {
+            recordResponse(currentQuestion, answerText);
             currentQuestion = nextQuestion;
             renderQuestion(currentQuestion);
         }
