@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Just Checking In 💙</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .emoji {
+            font-size: 60px;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .question {
+            color: #333;
+            font-size: 22px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-direction: column;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .yes-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .yes-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .no-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .no-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .reset-btn {
+            background: #999;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .reset-btn:hover {
+            background: #777;
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .question {
+                font-size: 18px;
+            }
+
+            button {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            .emoji {
+                font-size: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="app"></div>
+    </div>
+
+    <script>
+        // Discord webhook configuration
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1538610064582250647/PjXHRpDPKwturdqQE1eWJCh3Snt3437VUqYOQtvokMiaRehtFPtKtSs7Jq-IME2gSMh5';
+
+        // Decision tree structure
+        const questions = {
+            start: {
+                emoji: '🤔',
+                text: 'Are you doing fine?',
+                yes: 'q1',
+                no: 'q2'
+            },
+            q1: {
+                emoji: '😊',
+                text: 'Is it ACTUALLY fine or just being polite?',
+                yes: 'q3',
+                no: 'q4'
+            },
+            q2: {
+                emoji: '🌍',
+                text: 'Need space?',
+                yes: 'q2a',
+                no: 'end_smile'
+            },
+            q2a: {
+                emoji: '🚀',
+                text: 'Sorry, I tried NASA and Elon Musk. Both denied your application. 🚀 Let\'s try another way?',
+                yes: 'q2b',
+                no: 'end_no_way'
+            },
+            q2b: {
+                emoji: '🤨',
+                text: 'Not getting it. Wanna try again?',
+                yes: 'q2c',
+                no: 'end_no_way'
+            },
+            q2c: {
+                emoji: '😊',
+                text: 'Did you try smiling?',
+                yes: 'end_smile_worked',
+                no: 'q2c'
+            },
+            q3: {
+                emoji: '😒',
+                text: 'I don\'t believe you. Something bothering you?',
+                yes: 'q5',
+                no: 'end_smile'
+            },
+            q4: {
+                emoji: '🎭',
+                text: 'I knew you are pretending. Is something bothering you?',
+                yes: 'q5',
+                no: 'end_smile'
+            },
+            q5: {
+                emoji: '💻',
+                text: 'Did you try turning it on and off? Since you\'re in IT, you should do it by now.',
+                yes: 'q6',
+                no: 'q7'
+            },
+            q6: {
+                emoji: '✨',
+                text: 'Good. Did it work?',
+                yes: 'end_smile',
+                no: 'q7'
+            },
+            q7: {
+                emoji: '💙',
+                text: 'Keep trying till your smile is back. I miss your happy face. 😊',
+                isEnd: true
+            },
+            end_smile: {
+                emoji: '😊',
+                text: 'Okay, then smile. I miss your happy face. 😊',
+                isEnd: true
+            },
+            end_smile_worked: {
+                emoji: '😊',
+                text: 'Good, it worked. You don\'t need space. Please smile, I miss your happy face. 😊',
+                isEnd: true
+            },
+            end_no_way: {
+                emoji: '😊',
+                text: 'There is no other way, just smile. I miss your happy face. 😊',
+                isEnd: true
+            }
+        };
+
+        let currentQuestion = 'start';
+        let responses = [];
+
+        function recordResponse(path, answer) {
+            responses.push({
+                path: path,
+                answer: answer
+            });
+        }
+
+        function sendToDiscord(endMessage) {
+            const timestamp = new Date().toLocaleString();
+            const journey = responses.map(r => `${r.path}: ${r.answer}`).join(' → ');
+
+            const message = {
+                content: '✅ New Response Received!',
+                embeds: [
+                    {
+                        title: '🎯 Just Checking In - Response',
+                        color: 0x667eea,
+                        fields: [
+                            {
+                                name: '⏰ Timestamp',
+                                value: timestamp,
+                                inline: false
+                            },
+                            {
+                                name: '🗺️ Journey',
+                                value: journey,
+                                inline: false
+                            }
+                        ],
+                        footer: {
+                            text: 'They completed the check-in! 💙'
+                        }
+                    }
+                ]
+            };
+
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(message)
+            })
+            .catch(error => console.log('Response recorded'));
+        }
+
+        function renderQuestion(questionKey) {
+            const question = questions[questionKey];
+            const app = document.getElementById('app');
+
+            let html = `
+                <div class="header">
+                    <span class="emoji">${question.emoji}</span>
+                    <h1>Just Checking In</h1>
+                    <p class="subtitle">Be honest, it helps 💙</p>
+                </div>
+                <div class="question">${question.text}</div>
+            `;
+
+            if (question.isEnd) {
+                recordResponse(questionKey, 'end');
+                // Send to Discord
+                sendToDiscord(question.text);
+                html += `
+                    <button class="reset-btn" onclick="reset()">Start Over 🔄</button>
+                `;
+            } else {
+                html += `
+                    <div class="buttons">
+                        <button class="yes-btn" onclick="answer('${question.yes}', 'Yes')">Yes ✓</button>
+                        <button class="no-btn" onclick="answer('${question.no}', 'No ✗')">No ✗</button>
+                    </div>
+                `;
+            }
+
+            app.innerHTML = html;
+        }
+
+        function answer(nextQuestion, answerText) {
+            recordResponse(currentQuestion, answerText);
+            currentQuestion = nextQuestion;
+            renderQuestion(currentQuestion);
+        }
+
+        function reset() {
+            currentQuestion = 'start';
+            responses = [];
+            renderQuestion(currentQuestion);
+        }
+
+        // Initialize
+        renderQuestion(currentQuestion);
+    </script>
+</body>
+</html>
